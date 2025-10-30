@@ -74,10 +74,10 @@ const WaveformVisualizer: React.FC<WaveformVisualizerProps> = ({ audioLevel }) =
   }, [audioLevel]);
 
   return (
-    <div className="w-full h-32 bg-white/80 rounded-2xl p-6 backdrop-blur-sm border border-gray-200 shadow-[0_8px_32px_rgba(0,0,0,0.1)]">
+    <div className="h-32 w-full rounded-2xl border border-gray-200 bg-white/80 p-6 shadow-[0_8px_32px_rgba(0,0,0,0.1)] backdrop-blur-sm transition-colors duration-300 dark:border-slate-700/60 dark:bg-slate-900/70 dark:shadow-[0_8px_32px_rgba(2,6,23,0.55)]">
       <canvas
         ref={canvasRef}
-        className="w-full h-full"
+        className="h-full w-full"
         style={{ width: '100%', height: '100%' }}
       />
     </div>

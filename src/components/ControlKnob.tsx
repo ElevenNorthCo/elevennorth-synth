@@ -49,36 +49,38 @@ const ControlKnob: React.FC<ControlKnobProps> = ({
   const rotation = ((value - min) / (max - min)) * 270 - 135;
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-slate-200">
       <div
         ref={knobRef}
-        className={`relative w-16 h-16 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 shadow-[inset_0_2px_8px_rgba(0,0,0,0.1)] cursor-pointer select-none transition-all duration-100 ${
-          isDragging ? 'scale-105 shadow-[inset_0_2px_12px_rgba(0,0,0,0.15)]' : 'hover:shadow-[inset_0_2px_10px_rgba(0,0,0,0.12)]'
+        className={`relative h-16 w-16 cursor-pointer select-none rounded-full bg-gradient-to-br from-gray-200 to-gray-300 shadow-[inset_0_2px_8px_rgba(0,0,0,0.1)] transition-all duration-100 dark:from-slate-700 dark:to-slate-800 dark:shadow-[inset_0_2px_8px_rgba(2,6,23,0.35)] ${
+          isDragging
+            ? 'scale-105 shadow-[inset_0_2px_12px_rgba(0,0,0,0.15)] dark:shadow-[inset_0_2px_14px_rgba(2,6,23,0.45)]'
+            : 'hover:shadow-[inset_0_2px_10px_rgba(0,0,0,0.12)] dark:hover:shadow-[inset_0_2px_12px_rgba(2,6,23,0.4)]'
         }`}
         onMouseDown={handleMouseDown}
       >
         {/* Outer ring */}
-        <div className="absolute inset-1 rounded-full bg-gradient-to-br from-white to-gray-100 shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
+        <div className="absolute inset-1 rounded-full bg-gradient-to-br from-white to-gray-100 shadow-[0_1px_3px_rgba(0,0,0,0.1)] dark:from-slate-600 dark:to-slate-700 dark:shadow-[0_1px_3px_rgba(2,6,23,0.55)]">
           {/* Inner knob */}
-          <div className="absolute inset-2 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)]">
+          <div className="absolute inset-2 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] dark:from-slate-500 dark:to-slate-600 dark:shadow-[inset_0_1px_4px_rgba(2,6,23,0.6)]">
             {/* Indicator */}
             <div
               className="absolute w-full h-full"
               style={{ transform: `rotate(${rotation}deg)` }}
             >
-              <div className="absolute top-1 left-1/2 w-0.5 h-3 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full transform -translate-x-1/2" />
+              <div className="absolute top-1 left-1/2 h-3 w-0.5 -translate-x-1/2 transform rounded-full bg-gradient-to-b from-blue-500 to-purple-600" />
             </div>
           </div>
         </div>
-        
+
         {/* Value arc */}
-        <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 64 64">
+        <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 64 64">
           <circle
             cx="32"
             cy="32"
             r="28"
             fill="none"
-            stroke="rgba(59, 130, 246, 0.2)"
+            stroke="rgba(59, 130, 246, 0.25)"
             strokeWidth="2"
             strokeDasharray={`${(value - min) / (max - min) * 175.929} 175.929`}
             strokeLinecap="round"
@@ -88,10 +90,10 @@ const ControlKnob: React.FC<ControlKnobProps> = ({
       </div>
       
       <div className="text-center">
-        <div className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
+        <div className="text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-slate-200">
           {label}
         </div>
-        <div className="text-xs text-gray-500 font-mono">
+        <div className="text-xs font-mono text-gray-500 dark:text-slate-400">
           {value}{unit}
         </div>
       </div>
