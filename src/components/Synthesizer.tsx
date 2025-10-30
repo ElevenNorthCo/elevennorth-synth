@@ -122,7 +122,7 @@ const Synthesizer: React.FC = () => {
       <WaveformVisualizer audioLevel={audioLevel} />
       
       {/* Control Panel */}
-      <div className="my-8 p-6 bg-white/60 backdrop-blur-sm rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.1)] border border-gray-200/50">
+      <div className="relative z-20 my-8 p-6 bg-white/60 backdrop-blur-sm rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.1)] border border-gray-200/50">
         <div className="flex flex-wrap items-center justify-between gap-6">
           <SoundSelector selectedSound={selectedSound} onSoundChange={setSelectedSound} />
           
@@ -151,7 +151,7 @@ const Synthesizer: React.FC = () => {
         </div>
       </div>
       
-      <div className="relative p-6 bg-white/60 backdrop-blur-sm rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.1)] border border-gray-200/50">
+      <div className="relative z-10 p-6 bg-white/60 backdrop-blur-sm rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.1)] border border-gray-200/50">
         {/* White keys */}
         <div className="flex justify-center gap-0.5">
           {whiteKeys.map((mapping, index) => (
