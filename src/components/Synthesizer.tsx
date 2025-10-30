@@ -118,14 +118,14 @@ const Synthesizer: React.FC = () => {
   const blackKeys = keyMappings.filter(k => k.type === 'black');
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="mx-auto max-w-6xl">
       <WaveformVisualizer audioLevel={audioLevel} />
-      
+
       {/* Control Panel */}
-      <div className="relative z-20 my-8 p-6 bg-white/60 backdrop-blur-sm rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.1)] border border-gray-200/50">
+      <div className="relative z-20 my-8 rounded-3xl border border-gray-200/50 bg-white/60 p-6 shadow-[0_20px_60px_rgba(0,0,0,0.1)] backdrop-blur-sm transition-colors duration-300 dark:border-slate-700/60 dark:bg-slate-900/70 dark:shadow-[0_20px_60px_rgba(2,6,23,0.55)]">
         <div className="flex flex-wrap items-center justify-between gap-6">
           <SoundSelector selectedSound={selectedSound} onSoundChange={setSelectedSound} />
-          
+
           <div className="flex gap-8">
             <ControlKnob
               label="Volume"
@@ -151,7 +151,7 @@ const Synthesizer: React.FC = () => {
         </div>
       </div>
       
-      <div className="relative z-10 p-6 bg-white/60 backdrop-blur-sm rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.1)] border border-gray-200/50">
+      <div className="relative z-10 rounded-3xl border border-gray-200/50 bg-white/60 p-6 shadow-[0_20px_60px_rgba(0,0,0,0.1)] backdrop-blur-sm transition-colors duration-300 dark:border-slate-700/60 dark:bg-slate-900/80 dark:shadow-[0_20px_60px_rgba(2,6,23,0.55)]">
         {/* White keys */}
         <div className="flex justify-center gap-0.5">
           {whiteKeys.map((mapping, index) => (
@@ -197,9 +197,9 @@ const Synthesizer: React.FC = () => {
       </div>
       
       <div className="mt-6 text-center">
-        <p className="text-gray-600 text-sm font-medium">
-          Use your keyboard: <span className="text-blue-600 font-semibold">A S D F G H J K L ; '</span> for white keys,{' '}
-          <span className="text-purple-600 font-semibold">W E T Y U O P</span> for black keys
+        <p className="text-sm font-medium text-gray-600 dark:text-slate-400">
+          Use your keyboard: <span className="font-semibold text-blue-600 dark:text-indigo-300">A S D F G H J K L ; '</span> for white keys,{' '}
+          <span className="font-semibold text-purple-600 dark:text-violet-300">W E T Y U O P</span> for black keys
         </p>
       </div>
     </div>

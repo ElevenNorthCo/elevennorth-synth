@@ -33,21 +33,21 @@ const SoundSelector: React.FC<SoundSelectorProps> = ({ selectedSound, onSoundCha
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-48 px-4 py-3 bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.15)] transition-all duration-200"
+        className="flex w-56 items-center justify-between rounded-xl border border-gray-200 bg-white/80 px-4 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.1)] backdrop-blur-sm transition-all duration-200 hover:shadow-[0_6px_20px_rgba(0,0,0,0.15)] focus:outline-none focus:ring-2 focus:ring-blue-400/60 md:w-72 lg:w-80 dark:border-slate-700/60 dark:bg-slate-900/70 dark:shadow-[0_4px_16px_rgba(2,6,23,0.55)] dark:hover:shadow-[0_8px_28px_rgba(2,6,23,0.6)]"
       >
         <div className="text-left">
-          <div className="text-sm font-semibold text-gray-800">
+          <div className="text-sm font-semibold text-gray-800 dark:text-slate-100">
             {selectedSoundData.name}
           </div>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-gray-500 dark:text-slate-400">
             {selectedSoundData.description}
           </div>
         </div>
-        <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform duration-200 dark:text-slate-400 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-sm rounded-xl border border-gray-200 shadow-[0_8px_32px_rgba(0,0,0,0.15)] z-50 overflow-hidden">
+        <div className="absolute top-full left-0 right-0 z-50 mt-2 max-h-72 overflow-y-auto overscroll-contain rounded-xl border border-gray-200 bg-white/95 shadow-[0_12px_36px_rgba(0,0,0,0.18)] backdrop-blur-sm transition-colors duration-200 touch-pan-y md:max-h-80 dark:border-slate-700/60 dark:bg-slate-900/95 dark:shadow-[0_12px_36px_rgba(2,6,23,0.6)]">
           {sounds.map((sound) => (
             <button
               key={sound.id}
@@ -55,14 +55,16 @@ const SoundSelector: React.FC<SoundSelectorProps> = ({ selectedSound, onSoundCha
                 onSoundChange(sound.id);
                 setIsOpen(false);
               }}
-              className={`w-full px-4 py-3 text-left hover:bg-blue-50 transition-colors duration-150 ${
-                selectedSound === sound.id ? 'bg-blue-50 border-r-2 border-blue-500' : ''
+              className={`w-full px-4 py-3 text-left transition-colors duration-150 hover:bg-blue-50/80 focus:outline-none focus:ring-2 focus:ring-blue-400/60 dark:hover:bg-slate-800/60 ${
+                selectedSound === sound.id
+                  ? 'border-l-2 border-blue-500 bg-blue-50/70 dark:border-indigo-400 dark:bg-slate-800/70'
+                  : 'border-l-2 border-transparent'
               }`}
             >
-              <div className="text-sm font-semibold text-gray-800">
+              <div className="text-sm font-semibold text-gray-800 dark:text-slate-100">
                 {sound.name}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-gray-500 dark:text-slate-400">
                 {sound.description}
               </div>
             </button>
