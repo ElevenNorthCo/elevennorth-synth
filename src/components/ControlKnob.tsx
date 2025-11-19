@@ -1,100 +1,125 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface ControlKnobProps {
   label: string;
   value: number;
+  onChange: (value: number) => void;
   min?: number;
   max?: number;
-  step?: number;
-  onChange: (value: number) => void;
-  unit?: string;
+  color?: 'blue' | 'orange';
 }
 
 const ControlKnob: React.FC<ControlKnobProps> = ({
   label,
   value,
+  onChange,
   min = 0,
   max = 100,
-  step = 1,
-  onChange,
-  unit = '%'
+  color = 'blue'
 }) => {
   const [isDragging, setIsDragging] = useState(false);
-  const knobRef = useRef<HTMLDivElement>(null);
-  const startYRef = useRef(0);
-  const startValueRef = useRef(0);
+  const [startY, setStartY] = useState(0);
+  const [startValue, setStartValue] = useState(0);
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    setIsDragging(true);
-    startYRef.current = e.clientY;
-    startValueRef.current = value;
-    
+  const percentage = ((value - min) / (max - min)) * 100;
+  // Rotation from -135 to 135 degrees
+  const rotation = (percentage / 100) * 270 - 135;
+
+  useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      const deltaY = startYRef.current - e.clientY;
-      const sensitivity = (max - min) / 200;
-      const newValue = Math.max(min, Math.min(max, startValueRef.current + deltaY * sensitivity));
-      onChange(Math.round(newValue / step) * step);
+      if (!isDragging) return;
+
+      const deltaY = startY - e.clientY;
+      const range = max - min;
+      const deltaValue = (deltaY / 200) * range; // 200px drag for full range
+
+      let newValue = startValue + deltaValue;
+      newValue = Math.max(min, Math.min(max, newValue));
+
+      onChange(Math.round(newValue));
     };
 
     const handleMouseUp = () => {
       setIsDragging(false);
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'default';
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-  }, [value, min, max, step, onChange]);
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'ns-resize';
+    }
 
-  const rotation = ((value - min) / (max - min)) * 270 - 135;
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, startY, startValue, min, max, onChange]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setStartY(e.clientY);
+    setStartValue(value);
+  };
+
+  // LED dots generation
+  const renderLeds = () => {
+    const leds = [];
+    const totalLeds = 11;
+    const activeLeds = Math.round((percentage / 100) * (totalLeds - 1));
+
+    for (let i = 0; i < totalLeds; i++) {
+      const angle = (i / (totalLeds - 1)) * 270 - 135;
+      const isActive = i <= activeLeds;
+      const ledColor = color === 'blue'
+        ? (isActive ? 'bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.8)]' : 'bg-blue-900/30')
+        : (isActive ? 'bg-orange-400 shadow-[0_0_8px_rgba(251,146,60,0.8)]' : 'bg-orange-900/30');
+
+      leds.push(
+        <div
+          key={i}
+          className={`absolute h-1.5 w-1.5 rounded-full ${ledColor}`}
+          style={{
+            transform: `rotate(${angle}deg) translateY(-38px)`,
+            left: 'calc(50% - 3px)',
+            top: 'calc(50% - 3px)',
+          }}
+        />
+      );
+    }
+    return leds;
+  };
 
   return (
-    <div className="flex flex-col items-center gap-2 text-gray-700 dark:text-slate-200">
+    <div className="flex flex-col items-center gap-2">
       <div
-        ref={knobRef}
-        className={`relative h-16 w-16 cursor-pointer select-none rounded-full bg-gradient-to-br from-gray-200 to-gray-300 shadow-[inset_0_2px_8px_rgba(0,0,0,0.1)] transition-all duration-100 dark:from-slate-700 dark:to-slate-800 dark:shadow-[inset_0_2px_8px_rgba(2,6,23,0.35)] ${
-          isDragging
-            ? 'scale-105 shadow-[inset_0_2px_12px_rgba(0,0,0,0.15)] dark:shadow-[inset_0_2px_14px_rgba(2,6,23,0.45)]'
-            : 'hover:shadow-[inset_0_2px_10px_rgba(0,0,0,0.12)] dark:hover:shadow-[inset_0_2px_12px_rgba(2,6,23,0.4)]'
-        }`}
+        className="relative flex h-24 w-24 items-center justify-center cursor-ns-resize"
         onMouseDown={handleMouseDown}
       >
-        {/* Outer ring */}
-        <div className="absolute inset-1 rounded-full bg-gradient-to-br from-white to-gray-100 shadow-[0_1px_3px_rgba(0,0,0,0.1)] dark:from-slate-600 dark:to-slate-700 dark:shadow-[0_1px_3px_rgba(2,6,23,0.55)]">
-          {/* Inner knob */}
-          <div className="absolute inset-2 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] dark:from-slate-500 dark:to-slate-600 dark:shadow-[inset_0_1px_4px_rgba(2,6,23,0.6)]">
-            {/* Indicator */}
-            <div
-              className="absolute w-full h-full"
-              style={{ transform: `rotate(${rotation}deg)` }}
-            >
-              <div className="absolute top-1 left-1/2 h-3 w-0.5 -translate-x-1/2 transform rounded-full bg-gradient-to-b from-blue-500 to-purple-600" />
-            </div>
-          </div>
+        {/* LED Ring Container */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          {renderLeds()}
         </div>
 
-        {/* Value arc */}
-        <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 64 64">
-          <circle
-            cx="32"
-            cy="32"
-            r="28"
-            fill="none"
-            stroke="rgba(59, 130, 246, 0.25)"
-            strokeWidth="2"
-            strokeDasharray={`${(value - min) / (max - min) * 175.929} 175.929`}
-            strokeLinecap="round"
-            className="transition-all duration-200"
-          />
-        </svg>
+        {/* Knob Body */}
+        <div
+          className="relative h-16 w-16 rounded-full bg-[#1a1a1a] shadow-[0_4px_10px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] ring-1 ring-black"
+          style={{ transform: `rotate(${rotation}deg)` }}
+        >
+          {/* Knob Top Gradient */}
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#2a2a2a] to-[#111] opacity-90"></div>
+
+          {/* Indicator Line */}
+          <div className={`absolute left-1/2 top-2 h-5 w-1 -translate-x-1/2 rounded-full shadow-[0_0_5px_rgba(255,255,255,0.2)] ${color === 'blue' ? 'bg-blue-400' : 'bg-orange-400'}`}></div>
+        </div>
       </div>
-      
+
       <div className="text-center">
-        <div className="text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-slate-200">
+        <div className="text-xs font-bold tracking-widest text-gray-400 uppercase">
           {label}
         </div>
-        <div className="text-xs font-mono text-gray-500 dark:text-slate-400">
-          {value}{unit}
+        <div className="text-[10px] font-medium text-gray-600">
+          {Math.round(value)}%
         </div>
       </div>
     </div>

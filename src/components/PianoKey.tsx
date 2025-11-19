@@ -5,10 +5,10 @@ interface PianoKeyProps {
   keyboardKey: string;
   isActive: boolean;
   type: 'white' | 'black';
-  style?: React.CSSProperties;
   onMouseDown: () => void;
   onMouseUp: () => void;
   onMouseLeave: () => void;
+  style?: React.CSSProperties;
 }
 
 const PianoKey: React.FC<PianoKeyProps> = ({
@@ -16,77 +16,53 @@ const PianoKey: React.FC<PianoKeyProps> = ({
   keyboardKey,
   isActive,
   type,
-  style,
   onMouseDown,
   onMouseUp,
-  onMouseLeave
+  onMouseLeave,
+  style,
 }) => {
-  const baseClasses = "relative cursor-pointer select-none transition-all duration-100 ease-out";
-  
+  const isWhite = type === 'white';
+
+  const baseClasses = "relative flex flex-col justify-end items-center select-none transition-all duration-75 ease-out";
+
   const whiteKeyClasses = `
-    ${baseClasses}
-    w-12 h-32 md:w-16 md:h-40 lg:w-20 lg:h-48
-    bg-gradient-to-b from-white via-gray-50 to-gray-100
-    border border-gray-200 rounded-b-xl
-    shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.15)]
-    flex flex-col items-center justify-end
-    pb-4 md:pb-6
-    backdrop-blur-sm
-    ${isActive 
-      ? 'bg-gradient-to-b from-blue-100 via-blue-50 to-blue-100 shadow-[0_0_25px_rgba(59,130,246,0.4)] transform scale-[0.98] border-blue-200' 
-      : 'hover:bg-gradient-to-b hover:from-gray-50 hover:to-gray-50 hover:shadow-[0_6px_20px_rgba(0,0,0,0.12)]'
-    }
+    h-48 w-14 rounded-b-sm z-10
+    ${isActive
+      ? 'bg-gray-200 shadow-[inset_0_5px_10px_rgba(0,0,0,0.2)] translate-y-[2px]'
+      : 'bg-[#fdfdfd] shadow-[inset_0_-5px_10px_rgba(0,0,0,0.1),0_2px_5px_rgba(0,0,0,0.3)] hover:bg-white'}
   `;
-  
+
   const blackKeyClasses = `
-    ${baseClasses}
-    w-8 h-20 md:w-10 md:h-24 lg:w-12 lg:h-30
-    bg-gradient-to-b from-gray-800 via-gray-900 to-black
-    border border-gray-700 rounded-b-xl
-    shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.4)]
-    flex flex-col items-center justify-end
-    pb-2 md:pb-3
-    z-10
-    backdrop-blur-sm
-    ${isActive 
-      ? 'bg-gradient-to-b from-purple-700 via-purple-800 to-purple-900 shadow-[0_0_25px_rgba(147,51,234,0.5)] transform scale-[0.98] border-purple-600' 
-      : 'hover:bg-gradient-to-b hover:from-gray-700 hover:to-gray-800 hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)]'
-    }
+    h-32 w-10 rounded-b-sm z-20
+    ${isActive
+      ? 'bg-gray-900 shadow-[inset_0_2px_5px_rgba(0,0,0,0.5)] translate-y-[2px]'
+      : 'bg-gradient-to-b from-gray-800 to-black shadow-[2px_5px_5px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.2)]'}
   `;
 
   return (
     <div
-      className={type === 'white' ? whiteKeyClasses : blackKeyClasses}
+      className={`${baseClasses} ${isWhite ? whiteKeyClasses : blackKeyClasses}`}
       style={style}
       onMouseDown={onMouseDown}
       onMouseUp={onMouseUp}
       onMouseLeave={onMouseLeave}
-      onTouchStart={onMouseDown}
-      onTouchEnd={onMouseUp}
+      onTouchStart={(e) => {
+        e.preventDefault(); // Prevent scrolling
+        onMouseDown();
+      }}
+      onTouchEnd={(e) => {
+        e.preventDefault();
+        onMouseUp();
+      }}
     >
-      <div className={`text-xs md:text-sm font-bold tracking-wide ${
-        type === 'white' 
-          ? (isActive ? 'text-blue-700' : 'text-gray-700') 
-          : (isActive ? 'text-purple-200' : 'text-gray-200')
-      }`}>
-        {note}
+      <div className={`mb-4 flex flex-col items-center gap-1 ${isActive ? 'opacity-100' : 'opacity-60'}`}>
+        <span className={`text-sm font-bold ${isWhite ? 'text-gray-800' : 'text-gray-200'}`}>
+          {note}
+        </span>
+        <span className={`text-[10px] font-medium ${isWhite ? 'text-gray-500' : 'text-gray-500'}`}>
+          {keyboardKey}
+        </span>
       </div>
-      <div className={`text-xs font-mono font-medium ${
-        type === 'white' 
-          ? (isActive ? 'text-blue-600' : 'text-gray-500') 
-          : (isActive ? 'text-purple-300' : 'text-gray-300')
-      }`}>
-        {keyboardKey}
-      </div>
-      
-      {/* Active state overlay */}
-      {isActive && (
-        <div className={`absolute inset-0 rounded-b-xl ${
-          type === 'white' 
-            ? 'bg-gradient-to-b from-blue-200/30 to-blue-300/20' 
-            : 'bg-gradient-to-b from-purple-400/20 to-purple-500/30'
-        }`} />
-      )}
     </div>
   );
 };
