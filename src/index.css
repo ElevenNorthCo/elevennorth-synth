@@ -2,29 +2,247 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    @apply bg-[#1a1a1a] text-slate-200 antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  }
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #141414;
 }
 
-@layer utilities {
-  .text-display {
-    font-family: 'Courier New', Courier, monospace;
-    text-shadow: 0 0 10px rgba(255, 160, 0, 0.5);
-  }
-  
-  .hardware-shadow {
-    box-shadow: 
-      inset 0 1px 1px rgba(255, 255, 255, 0.15),
-      0 10px 20px rgba(0, 0, 0, 0.5),
-      0 4px 6px rgba(0, 0, 0, 0.3);
-  }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #e4e4e4;
+}
 
-  .inset-panel {
-    box-shadow: 
-      inset 0 2px 4px rgba(0, 0, 0, 0.6),
-      0 1px 0 rgba(255, 255, 255, 0.1);
-  }
+.app-stage {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.open108-shell {
+  width: min(1200px, 100%);
+  border-radius: 140px;
+  background: radial-gradient(circle at top, #f5ebd5 0%, #d7ccb4 50%, #c8baa0 100%);
+  border: 2px solid #998d73;
+  box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.6), 0 14px 40px rgba(0, 0, 0, 0.3);
+  padding: 1.8rem 2.2rem;
+}
+
+.open108-top {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: start;
+  gap: 1rem;
+}
+
+.open108-top h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: #474747;
+  letter-spacing: 0.02em;
+}
+
+.knobs-row {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.dial-wrapper {
+  display: grid;
+  gap: 0.25rem;
+  justify-items: center;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.dial {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #575a61 0%, #34363a 45%, #1d2026 90%);
+  position: relative;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2), 0 4px 7px rgba(0, 0, 0, 0.35);
+}
+
+.dial::after {
+  content: '';
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  width: 2px;
+  height: 14px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: #ebebeb;
+}
+
+.transport-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.transport-buttons button {
+  text-transform: uppercase;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 0.55rem 0.85rem;
+  color: #efefef;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+}
+
+.power { background: linear-gradient(#e7483f, #9a1f1a); }
+.start-stop { background: linear-gradient(#545b66, #2f343d); }
+.start-stop.active { background: linear-gradient(#2f853f, #1d5628); }
+
+.open108-main {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 1rem;
+}
+
+.chord-panel {
+  border-top: 8px solid #4c505b;
+  padding-top: 0.4rem;
+}
+
+.row-label {
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #42444c;
+  margin: 0.3rem 0;
+}
+
+.chord-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.chord-button {
+  border-radius: 10px;
+  border: 1px solid #93866f;
+  background: linear-gradient(#f3ecd9, #d5cab0);
+  min-height: 52px;
+  font-size: 1.8rem;
+  line-height: 1;
+  color: #252525;
+}
+
+.chord-button.minor,
+.chord-button.seventh,
+.chord-button.diminished {
+  font-size: 1.45rem;
+}
+
+.chord-button.active {
+  background: linear-gradient(#fdf7e8, #f0df97);
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.strum-pad {
+  border-top: 8px solid #4d4f5a;
+  border-radius: 34px;
+  background: linear-gradient(145deg, #555961, #2f3339);
+  box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.12), inset 0 -5px 10px rgba(0, 0, 0, 0.35);
+  padding: 0.75rem 1rem 1rem;
+  color: #f4f4f4;
+  touch-action: none;
+}
+
+.strum-pad h2 {
+  margin: 0;
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 0.08em;
+}
+
+.strum-grid {
+  margin-top: 0.6rem;
+  height: 225px;
+  border-radius: 26px;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18) 1px, transparent 1px, transparent 16px);
+}
+
+.strum-pad p {
+  margin: 0.55rem 0 0;
+  text-align: center;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.strum-pad.strumming .strum-grid {
+  background: repeating-linear-gradient(0deg, rgba(255, 220, 140, 0.6), rgba(255, 220, 140, 0.6) 1px, transparent 1px, transparent 16px);
+}
+
+.open108-bottom {
+  margin-top: 1.15rem;
+  border-top: 2px solid rgba(58, 58, 58, 0.5);
+  padding-top: 0.9rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+}
+
+.rhythm-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.rhythm-buttons span {
+  width: 100%;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: #40444f;
+}
+
+.rhythm-buttons button {
+  text-transform: uppercase;
+  border-radius: 8px;
+  border: 1px solid #31343b;
+  background: linear-gradient(#636a77, #3c414a);
+  color: #f4f4f4;
+  font-size: 1rem;
+  padding: 0.4rem 0.7rem;
+}
+
+.rhythm-buttons button.active {
+  background: linear-gradient(#7a879d, #4c5462);
+}
+
+.mix-controls {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.7rem;
+}
+
+.mix-controls label {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.88rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #333;
+}
+
+.mix-controls input[type='range'] {
+  width: 190px;
+}
+
+@media (max-width: 1080px) {
+  .open108-shell { border-radius: 42px; }
+  .open108-top { grid-template-columns: 1fr; }
+  .open108-main { grid-template-columns: 1fr; }
+  .open108-bottom { grid-template-columns: 1fr; }
+  .mix-controls { grid-template-columns: 1fr; }
+  .mix-controls input[type='range'] { width: 100%; }
 }
