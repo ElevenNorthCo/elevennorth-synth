@@ -2,27 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Reset & base ──────────────────────────────────────────── */
 :root {
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: #141414;
 }
 
-body {
+html, body {
   margin: 0;
-  min-height: 100vh;
-  background: #e4e4e4;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #c8c0b0;
 }
 
+/* ── App wrapper ───────────────────────────────────────────── */
 .app-stage {
-  min-height: 100vh;
+  height: 100dvh;
   display: grid;
   place-items: center;
-  padding: 1.5rem;
+  padding: 0.5rem;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
+/* ── Portrait rotate lock ──────────────────────────────────── */
 .rotate-lock {
   display: none;
-  max-width: 340px;
+  max-width: 320px;
   text-align: center;
   color: #2d2b29;
 }
@@ -30,21 +37,21 @@ body {
 .rotate-lock h2 {
   margin: 0.8rem 0 0.35rem;
   text-transform: uppercase;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   letter-spacing: 0.07em;
 }
 
 .rotate-lock p {
   margin: 0;
   opacity: 0.75;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .phone-icon {
-  width: 64px;
-  height: 108px;
+  width: 56px;
+  height: 96px;
   border: 4px solid #2f2f2f;
-  border-radius: 16px;
+  border-radius: 14px;
   margin: 0 auto;
   position: relative;
   animation: rotatePrompt 1.8s ease-in-out infinite;
@@ -54,288 +61,435 @@ body {
 .phone-icon::before {
   content: '';
   position: absolute;
-  top: 8px;
+  top: 7px;
   left: 50%;
   transform: translateX(-50%);
-  width: 22px;
+  width: 20px;
   height: 3px;
   border-radius: 999px;
   background: #2f2f2f;
 }
 
+@keyframes rotatePrompt {
+  0%, 20%  { transform: rotate(0deg); }
+  45%, 85% { transform: rotate(90deg); }
+  100%     { transform: rotate(90deg); }
+}
+
 .synth-stage {
   width: 100%;
+  height: 100%;
   display: grid;
   place-items: center;
+  overflow: hidden;
 }
 
+/* ── Shell ─────────────────────────────────────────────────── */
 .open108-shell {
-  width: min(1200px, 100%);
-  border-radius: 140px;
-  background: radial-gradient(circle at top, #f5ebd5 0%, #d7ccb4 50%, #c8baa0 100%);
+  width: min(1280px, 100%);
+  max-height: calc(100dvh - 1rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-radius: 60px;
+  background: radial-gradient(circle at top, #f5ebd5 0%, #d7ccb4 55%, #c5b89c 100%);
   border: 2px solid #998d73;
-  box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.6), 0 14px 40px rgba(0, 0, 0, 0.3);
-  padding: 1.8rem 2.2rem;
+  box-shadow:
+    inset 0 2px 8px rgba(255, 255, 255, 0.65),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.12),
+    0 12px 40px rgba(0, 0, 0, 0.35);
+  padding: 0.9rem 1.4rem;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
-@keyframes rotatePrompt {
-  0%,
-  20% {
-    transform: rotate(0deg);
-  }
-  45%,
-  85% {
-    transform: rotate(90deg);
-  }
-  100% {
-    transform: rotate(90deg);
-  }
-}
-
+/* ── Top bar ───────────────────────────────────────────────── */
 .open108-top {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  align-items: start;
-  gap: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-shrink: 0;
 }
 
-.open108-top h1 {
+.brand-title {
   margin: 0;
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(1.4rem, 3vw, 2.4rem);
+  font-weight: 800;
   color: #474747;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
+/* ── Knobs ─────────────────────────────────────────────────── */
 .knobs-row {
   display: flex;
-  gap: 0.8rem;
+  gap: 0.55rem;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .dial-wrapper {
-  display: grid;
-  gap: 0.25rem;
-  justify-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
   text-transform: uppercase;
-  font-size: 0.75rem;
+  font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.04em;
+  color: #3a3c42;
+  user-select: none;
 }
 
 .dial {
-  width: 56px;
-  height: 56px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: radial-gradient(circle at 40% 35%, #575a61 0%, #34363a 45%, #1d2026 90%);
+  background: radial-gradient(circle at 38% 32%, #5a5d65 0%, #333539 45%, #1c1e23 90%);
   position: relative;
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2), 0 4px 7px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    inset 0 1px 3px rgba(255, 255, 255, 0.22),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.4),
+    0 3px 7px rgba(0, 0, 0, 0.4);
 }
 
+/* indicator line */
 .dial::after {
   content: '';
   position: absolute;
-  top: 7px;
+  top: 6px;
   left: 50%;
   width: 2px;
-  height: 14px;
+  height: 11px;
   transform: translateX(-50%);
   border-radius: 999px;
-  background: #ebebeb;
+  background: #e8e8e8;
 }
 
-.transport-buttons {
+/* ── Transport panel ───────────────────────────────────────── */
+.transport-panel {
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex-shrink: 0;
 }
 
-.transport-buttons button {
+.transport-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 7px;
+  border: 1px solid #2a2c30;
+  border-bottom: 2px solid #111;
+  background: linear-gradient(180deg, #3c3f46 0%, #24262b 100%);
+  color: #d0d0d0;
+  font-size: 0.68rem;
+  font-weight: 800;
   text-transform: uppercase;
-  font-weight: 700;
-  border-radius: 10px;
-  padding: 0.55rem 0.85rem;
-  color: #efefef;
-  border: 1px solid rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: transform 0.06s, border-bottom-width 0.06s, filter 0.06s;
+  white-space: nowrap;
 }
 
-.power { background: linear-gradient(#e7483f, #9a1f1a); }
-.start-stop { background: linear-gradient(#545b66, #2f343d); }
-.start-stop.active { background: linear-gradient(#2f853f, #1d5628); }
+.transport-btn:active {
+  transform: translateY(1px);
+  border-bottom-width: 1px;
+}
 
+/* LED dot */
+.led {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #1a1c1f;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+/* Power LED — green when on */
+.power-btn.powered .led {
+  background: #3ddc84;
+  box-shadow: 0 0 5px #3ddc84, 0 0 10px rgba(61, 220, 132, 0.5);
+}
+
+/* Start LED — amber when idle, green + pulse when running */
+.start-btn .led {
+  background: #ff6b35;
+  box-shadow: 0 0 5px #ff6b35, 0 0 9px rgba(255, 107, 53, 0.45);
+}
+
+.start-btn.running {
+  background: linear-gradient(180deg, #2a4a30 0%, #1a2e1e 100%);
+  border-color: #1a3020;
+}
+
+.start-btn.running .led {
+  background: #3ddc84;
+  box-shadow: 0 0 6px #3ddc84, 0 0 12px rgba(61, 220, 132, 0.55);
+  animation: ledPulse 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes ledPulse {
+  from { opacity: 0.65; box-shadow: 0 0 4px #3ddc84; }
+  to   { opacity: 1;    box-shadow: 0 0 8px #3ddc84, 0 0 14px rgba(61,220,132,0.6); }
+}
+
+/* ── Main layout: chords + strum ───────────────────────────── */
 .open108-main {
-  margin-top: 1rem;
+  flex: 1;
+  min-height: 0;
   display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 1rem;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 0.75rem;
+  overflow: hidden;
 }
 
+/* ── Chord panel ───────────────────────────────────────────── */
 .chord-panel {
-  border-top: 8px solid #4c505b;
-  padding-top: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  border-top: 6px solid #4c505b;
+  padding-top: 0.3rem;
+  overflow: hidden;
+}
+
+.chord-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
 }
 
 .row-label {
   text-transform: uppercase;
-  font-size: 0.95rem;
+  font-size: 0.65rem;
   font-weight: 800;
   color: #42444c;
-  margin: 0.3rem 0;
+  letter-spacing: 0.05em;
+  line-height: 1;
 }
 
 .chord-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 0.35rem;
+  gap: 0.25rem;
 }
 
 .chord-button {
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid #93866f;
-  background: linear-gradient(#f3ecd9, #d5cab0);
-  min-height: 52px;
-  font-size: 1.8rem;
+  background: linear-gradient(180deg, #f3ecd9 0%, #d5cab0 100%);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  min-height: clamp(30px, 5dvh, 50px);
+  font-size: clamp(0.8rem, 1.8dvh, 1.5rem);
+  font-weight: 600;
   line-height: 1;
   color: #252525;
+  cursor: pointer;
+  transition: transform 0.05s, box-shadow 0.05s, background 0.08s;
+  touch-action: manipulation;
 }
 
-.chord-button.minor,
-.chord-button.seventh,
-.chord-button.diminished {
-  font-size: 1.45rem;
+.chord-button:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .chord-button.active {
-  background: linear-gradient(#fdf7e8, #f0df97);
+  background: linear-gradient(180deg, #fdf7e8 0%, #f0df97 100%);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(180, 150, 0, 0.3);
   transform: translateY(1px);
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
+/* ── Strum pad ─────────────────────────────────────────────── */
 .strum-pad {
-  border-top: 8px solid #4d4f5a;
-  border-radius: 34px;
-  background: linear-gradient(145deg, #555961, #2f3339);
-  box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.12), inset 0 -5px 10px rgba(0, 0, 0, 0.35);
-  padding: 0.75rem 1rem 1rem;
-  color: #f4f4f4;
+  display: flex;
+  flex-direction: column;
+  border-top: 6px solid #4d4f5a;
+  border-radius: 26px;
+  background: linear-gradient(145deg, #52565d, #2d3138);
+  box-shadow:
+    inset 0 2px 8px rgba(255, 255, 255, 0.1),
+    inset 0 -4px 10px rgba(0, 0, 0, 0.35);
+  padding: 0.5rem 0.75rem 0.6rem;
+  color: #f0f0f0;
   touch-action: none;
+  overflow: hidden;
+  gap: 0.3rem;
 }
 
 .strum-pad h2 {
   margin: 0;
   text-transform: uppercase;
   text-align: center;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
+  font-size: clamp(0.65rem, 1.4dvh, 0.85rem);
+  font-weight: 700;
+  opacity: 0.7;
+  flex-shrink: 0;
 }
 
 .strum-grid {
-  margin-top: 0.6rem;
-  height: 225px;
-  border-radius: 26px;
-  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18) 1px, transparent 1px, transparent 16px);
-}
-
-.strum-pad p {
-  margin: 0.55rem 0 0;
-  text-align: center;
-  font-size: 0.9rem;
-  opacity: 0.85;
+  flex: 1;
+  min-height: 50px;
+  border-radius: 18px;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.15) 0px,
+    rgba(255, 255, 255, 0.15) 1px,
+    transparent 1px,
+    transparent 14px
+  );
+  transition: background 0.15s;
 }
 
 .strum-pad.strumming .strum-grid {
-  background: repeating-linear-gradient(0deg, rgba(255, 220, 140, 0.6), rgba(255, 220, 140, 0.6) 1px, transparent 1px, transparent 16px);
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 215, 120, 0.55) 0px,
+    rgba(255, 215, 120, 0.55) 1px,
+    transparent 1px,
+    transparent 14px
+  );
 }
 
+.strum-pad p {
+  margin: 0;
+  text-align: center;
+  font-size: clamp(0.6rem, 1.3dvh, 0.8rem);
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+/* ── Bottom: rhythm + mix ──────────────────────────────────── */
 .open108-bottom {
-  margin-top: 1.15rem;
-  border-top: 2px solid rgba(58, 58, 58, 0.5);
-  padding-top: 0.9rem;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 1rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border-top: 2px solid rgba(70, 65, 55, 0.45);
+  padding-top: 0.5rem;
+  overflow: hidden;
+}
+
+.rhythm-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.section-label {
+  text-transform: uppercase;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #40444f;
+  line-height: 1;
 }
 
 .rhythm-buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
-  align-items: center;
-}
-
-.rhythm-buttons span {
-  width: 100%;
-  font-size: 0.95rem;
-  text-transform: uppercase;
-  font-weight: 800;
-  color: #40444f;
+  gap: 0.3rem;
 }
 
 .rhythm-buttons button {
   text-transform: uppercase;
-  border-radius: 8px;
-  border: 1px solid #31343b;
-  background: linear-gradient(#636a77, #3c414a);
-  color: #f4f4f4;
-  font-size: 1rem;
-  padding: 0.4rem 0.7rem;
+  border-radius: 7px;
+  border: 1px solid #2e3138;
+  border-bottom: 2px solid #1a1c20;
+  background: linear-gradient(180deg, #5c6370 0%, #38404a 100%);
+  color: #e0e0e0;
+  font-size: clamp(0.6rem, 1.4dvh, 0.78rem);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.28rem 0.55rem;
+  cursor: pointer;
+  transition: transform 0.05s, border-bottom-width 0.05s;
+  touch-action: manipulation;
+}
+
+.rhythm-buttons button:active {
+  transform: translateY(1px);
+  border-bottom-width: 1px;
 }
 
 .rhythm-buttons button.active {
-  background: linear-gradient(#7a879d, #4c5462);
+  background: linear-gradient(180deg, #6e7a8a 0%, #44505e 100%);
+  border-color: #556070;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(100, 140, 180, 0.2);
 }
 
+/* ── Mix controls ──────────────────────────────────────────── */
 .mix-controls {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex-shrink: 0;
 }
 
 .mix-controls label {
-  display: grid;
-  gap: 0.2rem;
-  font-size: 0.88rem;
-  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: clamp(0.58rem, 1.3dvh, 0.72rem);
   font-weight: 700;
-  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #3a3c42;
+  white-space: nowrap;
+}
+
+.mix-controls label span {
+  width: 3.2em;
+  flex-shrink: 0;
 }
 
 .mix-controls input[type='range'] {
-  width: 190px;
+  width: clamp(80px, 12vw, 150px);
+  accent-color: #5a6070;
+  cursor: pointer;
 }
 
-@media (max-width: 1080px) {
-  .open108-shell { border-radius: 42px; }
-  .open108-top { grid-template-columns: 1fr; }
-  .open108-main { grid-template-columns: 1fr; }
-  .open108-bottom { grid-template-columns: 1fr; }
-  .mix-controls { grid-template-columns: 1fr; }
-  .mix-controls input[type='range'] { width: 100%; }
+.mix-controls strong {
+  font-size: 0.65rem;
+  width: 3em;
+  text-align: right;
+  flex-shrink: 0;
 }
 
-@media (max-width: 900px) and (orientation: portrait) {
-  .app-stage {
-    place-items: center;
-    padding: 1rem;
-  }
-
-  .rotate-lock {
-    display: block;
-  }
-
-  .synth-stage {
-    display: none;
-  }
+/* ── Responsive: portrait → show rotate lock ───────────────── */
+@media (orientation: portrait) {
+  .rotate-lock { display: block; }
+  .synth-stage { display: none; }
 }
 
-@media (max-height: 500px) and (orientation: landscape) {
-  .app-stage {
-    padding: 0.5rem;
-  }
-
+/* ── Responsive: larger landscape screens ──────────────────── */
+@media (min-height: 600px) and (orientation: landscape) {
   .open108-shell {
-    border-radius: 32px;
-    padding: 1rem 1.2rem;
+    border-radius: 100px;
+    padding: 1.2rem 1.8rem;
+    gap: 0.7rem;
   }
 
-  .strum-grid {
-    height: 150px;
-  }
+  .dial { width: 48px; height: 48px; }
+  .dial::after { top: 7px; height: 13px; }
+  .dial-wrapper { font-size: 0.68rem; }
+
+  .chord-button { min-height: clamp(38px, 5.5dvh, 54px); }
+
+  .mix-controls input[type='range'] { width: clamp(100px, 13vw, 170px); }
+}
+
+@media (min-height: 750px) and (orientation: landscape) {
+  .open108-shell { border-radius: 130px; padding: 1.5rem 2rem; }
+  .brand-title { font-size: clamp(1.8rem, 3vw, 2.6rem); }
+  .dial { width: 54px; height: 54px; }
 }

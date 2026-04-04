@@ -52,14 +52,58 @@ const chordRows: { title: string; type: ChordType; chords: ChordDef[] }[] = [
 ];
 
 const rhythmPatterns: Record<RhythmStyle, DrumVoice[][]> = {
-  rock: [['kick', 'hat'], ['hat'], ['snare', 'hat'], ['hat'], ['kick', 'hat'], ['hat'], ['snare', 'hat'], ['hat']],
-  disco: [['kick', 'hat'], ['hat'], ['kick', 'hat'], ['hat'], ['kick', 'snare', 'hat'], ['hat'], ['kick', 'hat'], ['hat']],
-  latin: [['kick'], ['hat'], ['snare', 'perc'], ['hat'], ['kick', 'perc'], ['hat'], ['snare'], ['hat']],
-  waltz: [['kick', 'hat'], ['hat'], ['snare'], ['kick', 'hat'], ['hat'], ['snare']],
-  march: [['kick', 'hat'], ['snare', 'hat'], ['kick', 'hat'], ['snare', 'hat'], ['kick'], ['snare']],
-  bossanova: [['kick', 'hat'], ['perc'], ['snare', 'hat'], ['perc'], ['kick', 'hat'], ['perc'], ['snare', 'hat'], ['clap']],
+  rock:     [['kick','hat'],['hat'],['snare','hat'],['hat'],['kick','hat'],['hat'],['snare','hat'],['hat']],
+  disco:    [['kick','hat'],['hat'],['kick','hat'],['hat'],['kick','snare','hat'],['hat'],['kick','hat'],['hat']],
+  latin:    [['kick'],['hat'],['snare','perc'],['hat'],['kick','perc'],['hat'],['snare'],['hat']],
+  waltz:    [['kick','hat'],['hat'],['snare'],['kick','hat'],['hat'],['snare']],
+  march:    [['kick','hat'],['snare','hat'],['kick','hat'],['snare','hat'],['kick'],['snare']],
+  bossanova:[['kick','hat'],['perc'],['snare','hat'],['perc'],['kick','hat'],['perc'],['snare','hat'],['clap']],
 };
 
+// ── Knob component ──────────────────────────────────────────────
+interface KnobProps {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+}
+
+const KnobDial: React.FC<KnobProps> = ({ label, value, onChange }) => {
+  const startYRef = useRef<number | null>(null);
+  const startValRef = useRef(value);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    startYRef.current = e.clientY;
+    startValRef.current = value;
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (startYRef.current === null) return;
+    const delta = startYRef.current - e.clientY;
+    onChange(Math.min(100, Math.max(0, Math.round(startValRef.current + delta))));
+  };
+
+  const handlePointerUp = () => { startYRef.current = null; };
+
+  // -135° = min, +135° = max
+  const rotation = (value / 100) * 270 - 135;
+
+  return (
+    <div className="dial-wrapper">
+      <div
+        className="dial"
+        style={{ transform: `rotate(${rotation}deg)`, cursor: 'ns-resize', touchAction: 'none' }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerLeave={handlePointerUp}
+      />
+      <span>{label}</span>
+    </div>
+  );
+};
+
+// ── Main component ───────────────────────────────────────────────
 const Open108: React.FC = () => {
   const [activeChord, setActiveChord] = useState<ChordDef>(chordRows[0].chords[0]);
   const [tempo, setTempo] = useState(102);
@@ -68,10 +112,23 @@ const Open108: React.FC = () => {
   const [chordVolume, setChordVolume] = useState(72);
   const [isRhythmRunning, setIsRhythmRunning] = useState(false);
   const [isStrumming, setIsStrumming] = useState(false);
+  const [isPowered, setIsPowered] = useState(false);
+
+  // Knob state
+  const [voices, setVoices] = useState(30);   // detune spread 0-100
+  const [tone, setTone] = useState(60);        // filter brightness 0-100
+  const [sustain, setSustain] = useState(40);  // note duration 0-100
+
+  // Refs for use inside audio callbacks (avoids stale closures)
+  const voicesRef = useRef(voices);
+  const sustainRef = useRef(sustain);
+  useEffect(() => { voicesRef.current = voices; }, [voices]);
+  useEffect(() => { sustainRef.current = sustain; }, [sustain]);
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const masterGainRef = useRef<GainNode | null>(null);
   const rhythmGainRef = useRef<GainNode | null>(null);
+  const filterRef = useRef<BiquadFilterNode | null>(null);
   const strumPadRef = useRef<HTMLDivElement | null>(null);
   const lastXRef = useRef<number | null>(null);
   const rhythmStepRef = useRef(0);
@@ -85,7 +142,7 @@ const Open108: React.FC = () => {
       const rhythm = context.createGain();
 
       filter.type = 'lowpass';
-      filter.frequency.value = 4800;
+      filter.frequency.value = 800 + (tone / 100) * 7200;
       compressor.threshold.value = -26;
       compressor.ratio.value = 4;
       master.gain.value = chordVolume / 100;
@@ -99,32 +156,47 @@ const Open108: React.FC = () => {
       audioContextRef.current = context;
       masterGainRef.current = master;
       rhythmGainRef.current = rhythm;
+      filterRef.current = filter;
     }
 
     if (audioContextRef.current.state === 'suspended') {
       await audioContextRef.current.resume();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chordVolume, rhythmVolume]);
 
+  // Sync gain nodes when sliders change
   useEffect(() => {
-    if (masterGainRef.current) {
-      masterGainRef.current.gain.value = chordVolume / 100;
-    }
+    if (masterGainRef.current) masterGainRef.current.gain.value = chordVolume / 100;
   }, [chordVolume]);
 
   useEffect(() => {
-    if (rhythmGainRef.current) {
-      rhythmGainRef.current.gain.value = rhythmVolume / 100;
-    }
+    if (rhythmGainRef.current) rhythmGainRef.current.gain.value = rhythmVolume / 100;
   }, [rhythmVolume]);
 
-  const playTone = useCallback(async (frequency: number, durationMs = 260, strength = 1) => {
+  // Sync filter when tone knob changes
+  useEffect(() => {
+    if (filterRef.current) {
+      filterRef.current.frequency.value = 800 + (tone / 100) * 7200;
+    }
+  }, [tone]);
+
+  // Power button — initializes audio context and toggles power LED
+  const handlePower = useCallback(async () => {
+    await ensureAudio();
+    setIsPowered((prev) => !prev);
+  }, [ensureAudio]);
+
+  const playTone = useCallback(async (frequency: number, strength = 1) => {
     await ensureAudio();
     const context = audioContextRef.current;
     const master = masterGainRef.current;
     if (!context || !master) return;
 
     const now = context.currentTime;
+    const durationMs = 150 + sustainRef.current * 4; // 150–550 ms
+    const detuneRatio = 1 + (voicesRef.current / 100) * 0.015;
+
     const env = context.createGain();
     const oscA = context.createOscillator();
     const oscB = context.createOscillator();
@@ -132,7 +204,7 @@ const Open108: React.FC = () => {
     oscA.type = 'triangle';
     oscB.type = 'sawtooth';
     oscA.frequency.value = frequency;
-    oscB.frequency.value = frequency * 1.003;
+    oscB.frequency.value = frequency * detuneRatio;
 
     env.gain.setValueAtTime(0.0001, now);
     env.gain.linearRampToValueAtTime(0.3 * strength, now + 0.02);
@@ -174,9 +246,7 @@ const Open108: React.FC = () => {
     const bufferSize = context.sampleRate * 0.08;
     const buffer = context.createBuffer(1, bufferSize, context.sampleRate);
     const output = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i += 1) {
-      output[i] = Math.random() * 2 - 1;
-    }
+    for (let i = 0; i < bufferSize; i += 1) output[i] = Math.random() * 2 - 1;
 
     const source = context.createBufferSource();
     source.buffer = buffer;
@@ -184,21 +254,13 @@ const Open108: React.FC = () => {
     const gain = context.createGain();
 
     if (voice === 'snare') {
-      noiseFilter.type = 'highpass';
-      noiseFilter.frequency.value = 1450;
-      gain.gain.value = 0.22;
+      noiseFilter.type = 'highpass'; noiseFilter.frequency.value = 1450; gain.gain.value = 0.22;
     } else if (voice === 'clap') {
-      noiseFilter.type = 'bandpass';
-      noiseFilter.frequency.value = 1200;
-      gain.gain.value = 0.18;
+      noiseFilter.type = 'bandpass'; noiseFilter.frequency.value = 1200; gain.gain.value = 0.18;
     } else if (voice === 'perc') {
-      noiseFilter.type = 'bandpass';
-      noiseFilter.frequency.value = 820;
-      gain.gain.value = 0.16;
+      noiseFilter.type = 'bandpass'; noiseFilter.frequency.value = 820; gain.gain.value = 0.16;
     } else {
-      noiseFilter.type = 'highpass';
-      noiseFilter.frequency.value = 6000;
-      gain.gain.value = 0.09;
+      noiseFilter.type = 'highpass'; noiseFilter.frequency.value = 6000; gain.gain.value = 0.09;
     }
 
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
@@ -209,82 +271,89 @@ const Open108: React.FC = () => {
     source.stop(now + 0.085);
   }, [ensureAudio]);
 
-  const triggerStrum = useCallback(async (direction: 'left' | 'right', velocity = 0.75) => {
-    const ordered = direction === 'right' ? activeChord.notes : [...activeChord.notes].reverse();
+  // Play a chord's notes in strummed sequence
+  const strumChord = useCallback(async (notes: number[], direction: 'left' | 'right', velocity = 0.75) => {
+    const ordered = direction === 'right' ? notes : [...notes].reverse();
     await ensureAudio();
-
     ordered.forEach((note, index) => {
-      const humanize = (Math.random() * 10 - 5) + index * 34;
-      window.setTimeout(() => {
-        void playTone(note, 300, Math.min(1, Math.max(0.45, velocity)));
-      }, Math.max(0, humanize));
+      const delay = Math.max(0, (Math.random() * 10 - 5) + index * 34);
+      window.setTimeout(() => void playTone(note, Math.min(1, Math.max(0.45, velocity))), delay);
     });
-  }, [activeChord.notes, ensureAudio, playTone]);
+  }, [ensureAudio, playTone]);
 
+  // Chord button — select + play
+  const handleChordClick = useCallback((chord: ChordDef) => {
+    setActiveChord(chord);
+    void strumChord(chord.notes, 'right', 0.7);
+  }, [strumChord]);
+
+  // Rhythm sequencer
   useEffect(() => {
     if (!isRhythmRunning) return undefined;
-
     const steps = rhythmPatterns[rhythmStyle];
     const stepMs = (60_000 / tempo) / 2;
     const timer = window.setInterval(() => {
       const step = rhythmStepRef.current % steps.length;
-      steps[step].forEach((voice) => {
-        void playDrum(voice);
-      });
+      steps[step].forEach((voice) => void playDrum(voice));
       rhythmStepRef.current += 1;
     }, stepMs);
-
     return () => window.clearInterval(timer);
   }, [isRhythmRunning, rhythmStyle, tempo, playDrum]);
 
   const flattenedChords = useMemo(() => chordRows.flatMap((row) => row.chords), []);
 
+  // Strum pad handlers
   const handlePadDown = async (x: number) => {
     await ensureAudio();
     setIsStrumming(true);
     lastXRef.current = x;
-    void triggerStrum('right', 0.7);
+    void strumChord(activeChord.notes, 'right', 0.7);
   };
 
   const handlePadMove = (x: number) => {
     if (!isStrumming || lastXRef.current === null) return;
     const delta = x - lastXRef.current;
     if (Math.abs(delta) < 16) return;
-
-    const direction = delta > 0 ? 'right' : 'left';
     const velocity = Math.min(1, Math.max(0.5, Math.abs(delta) / 80));
     lastXRef.current = x;
-    void triggerStrum(direction, velocity);
+    void strumChord(activeChord.notes, delta > 0 ? 'right' : 'left', velocity);
   };
 
-  const stopPadInteraction = () => {
-    setIsStrumming(false);
-    lastXRef.current = null;
-  };
+  const stopPadInteraction = () => { setIsStrumming(false); lastXRef.current = null; };
 
   return (
     <div className="open108-shell">
+
+      {/* ── Top bar ── */}
       <div className="open108-top">
         <div className="knobs-row">
-          {['Voices', 'Tone', 'Toone', 'Sustain', 'Chord Vol'].map((label) => (
-            <div key={label} className="dial-wrapper">
-              <div className="dial" />
-              <span>{label}</span>
-            </div>
-          ))}
+          <KnobDial label="Voices"    value={voices}      onChange={setVoices} />
+          <KnobDial label="Tone"      value={tone}        onChange={setTone} />
+          <KnobDial label="Sustain"   value={sustain}     onChange={setSustain} />
+          <KnobDial label="Chord Vol" value={chordVolume} onChange={setChordVolume} />
         </div>
-        <h1>Open108</h1>
-        <div className="transport-buttons">
-          <button className="power">Power</button>
+
+        <h1 className="brand-title">Open108</h1>
+
+        <div className="transport-panel">
           <button
-            className={isRhythmRunning ? 'start-stop active' : 'start-stop'}
+            className={`transport-btn power-btn${isPowered ? ' powered' : ''}`}
+            onClick={() => void handlePower()}
+          >
+            <span className="led" />
+            Power
+          </button>
+          <button
+            className={`transport-btn start-btn${isRhythmRunning ? ' running' : ''}`}
             onClick={() => setIsRhythmRunning((prev) => !prev)}
           >
+            <span className="led" />
             {isRhythmRunning ? 'Stop' : 'Start'}
           </button>
         </div>
       </div>
 
+      {/* ── Main: chords + strum ── */}
       <div className="open108-main">
         <section className="chord-panel">
           {chordRows.map((row) => (
@@ -295,7 +364,7 @@ const Open108: React.FC = () => {
                   <button
                     key={chord.label}
                     className={`chord-button ${activeChord.label === chord.label ? 'active' : ''} ${chord.type}`}
-                    onClick={() => setActiveChord(chord)}
+                    onClick={() => handleChordClick(chord)}
                   >
                     {chord.label}
                   </button>
@@ -307,52 +376,54 @@ const Open108: React.FC = () => {
 
         <section
           ref={strumPadRef}
-          className={`strum-pad ${isStrumming ? 'strumming' : ''}`}
-          onPointerDown={(event) => {
-            void handlePadDown(event.clientX);
-          }}
-          onPointerMove={(event) => handlePadMove(event.clientX)}
+          className={`strum-pad${isStrumming ? ' strumming' : ''}`}
+          onPointerDown={(e) => void handlePadDown(e.clientX)}
+          onPointerMove={(e) => handlePadMove(e.clientX)}
           onPointerUp={stopPadInteraction}
           onPointerLeave={stopPadInteraction}
         >
           <h2>Strum Pad</h2>
           <div className="strum-grid" />
-          <p>{activeChord.label} · {flattenedChords.length} mapped chords · swipe to strum</p>
+          <p>{activeChord.label} &middot; {flattenedChords.length} chords &middot; swipe to strum</p>
         </section>
       </div>
 
+      {/* ── Bottom: rhythm + mix ── */}
       <div className="open108-bottom">
-        <div className="rhythm-buttons">
-          <span>Rhythm Select</span>
-          {(['rock', 'disco', 'latin', 'waltz', 'march', 'bossanova'] as RhythmStyle[]).map((style) => (
-            <button
-              key={style}
-              className={rhythmStyle === style ? 'active' : ''}
-              onClick={() => setRhythmStyle(style)}
-            >
-              {style}
-            </button>
-          ))}
+        <div className="rhythm-section">
+          <span className="section-label">Rhythm</span>
+          <div className="rhythm-buttons">
+            {(['rock', 'disco', 'latin', 'waltz', 'march', 'bossanova'] as RhythmStyle[]).map((style) => (
+              <button
+                key={style}
+                className={rhythmStyle === style ? 'active' : ''}
+                onClick={() => setRhythmStyle(style)}
+              >
+                {style}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="mix-controls">
           <label>
-            Tempo
-            <input type="range" min={60} max={160} value={tempo} onChange={(event) => setTempo(Number(event.target.value))} />
-            <strong>{tempo} BPM</strong>
+            <span>Tempo</span>
+            <input type="range" min={60} max={160} value={tempo} onChange={(e) => setTempo(Number(e.target.value))} />
+            <strong>{tempo}</strong>
           </label>
           <label>
-            Rhythm Vol
-            <input type="range" min={0} max={100} value={rhythmVolume} onChange={(event) => setRhythmVolume(Number(event.target.value))} />
+            <span>Rhythm</span>
+            <input type="range" min={0} max={100} value={rhythmVolume} onChange={(e) => setRhythmVolume(Number(e.target.value))} />
             <strong>{rhythmVolume}%</strong>
           </label>
           <label>
-            Chord Vol
-            <input type="range" min={0} max={100} value={chordVolume} onChange={(event) => setChordVolume(Number(event.target.value))} />
+            <span>Chord</span>
+            <input type="range" min={0} max={100} value={chordVolume} onChange={(e) => setChordVolume(Number(e.target.value))} />
             <strong>{chordVolume}%</strong>
           </label>
         </div>
       </div>
+
     </div>
   );
 };
