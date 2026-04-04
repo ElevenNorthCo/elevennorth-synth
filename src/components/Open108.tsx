@@ -113,6 +113,7 @@ const Open108: React.FC = () => {
   const [isRhythmRunning, setIsRhythmRunning] = useState(false);
   const [isStrumming, setIsStrumming] = useState(false);
   const [isPowered, setIsPowered] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
 
   // Knob state
   const [voices, setVoices] = useState(30);   // detune spread 0-100
@@ -324,6 +325,27 @@ const Open108: React.FC = () => {
   return (
     <div className="open108-shell">
 
+      {/* ── About overlay ── */}
+      {showAbout && (
+        <div className="about-overlay" onClick={() => setShowAbout(false)}>
+          <div className="about-card" onClick={(e) => e.stopPropagation()}>
+            <div className="about-logo">108</div>
+            <h2>Open108</h2>
+            <p>A digital recreation of the classic chord-based electronic instrument experience.</p>
+            <div className="about-links">
+              <a href="https://elevennorth.co" target="_blank" rel="noopener noreferrer" className="about-link primary">
+                Built by Eleven North
+              </a>
+              <a href="https://github.com/ElevenNorthCo/elevennorth-Open108" target="_blank" rel="noopener noreferrer" className="about-link secondary">
+                ★ Contribute on GitHub
+              </a>
+            </div>
+            <p className="about-legal">Inspired by classic chord instruments. Not affiliated with Suzuki Musical Instrument Corporation.</p>
+            <button className="about-close" onClick={() => setShowAbout(false)}>Close</button>
+          </div>
+        </div>
+      )}
+
       {/* ── Top bar ── */}
       <div className="open108-top">
         <div className="knobs-row">
@@ -333,7 +355,10 @@ const Open108: React.FC = () => {
           <KnobDial label="Chord Vol" value={chordVolume} onChange={setChordVolume} />
         </div>
 
-        <h1 className="brand-title">Open108</h1>
+        <div className="brand-group">
+          <h1 className="brand-title">Open108</h1>
+          <button className="info-btn" onClick={() => setShowAbout(true)} aria-label="About">ⓘ</button>
+        </div>
 
         <div className="transport-panel">
           <button
